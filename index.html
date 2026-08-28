@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>媽媽，你睡了嗎？— 簡化三分區預覽</title>
+<style>
+  :root {
+    --bg: #0f1526; --bg-card: #161f36; --bg-elevated: #1e2843;
+    --gold: #e0c28f; --gold-strong: #f0d7a8; --gold-soft: rgba(224, 194, 143, .14);
+    --text-hi: #f2ede0; --text-body: #cdd1e0; --text-muted: #7c869c;
+    --border: rgba(224, 194, 143, .22); --border-soft: rgba(255, 255, 255, .08);
+    --shadow: 0 14px 34px rgba(0, 0, 0, .38);
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f6f1e4; --bg-card: #fffdf8; --bg-elevated: #f1e8d6;
+      --gold: #b8894f; --gold-strong: #96703d; --gold-soft: rgba(184, 137, 79, .1);
+      --text-hi: #26293a; --text-body: #3d4257; --text-muted: #767c94;
+      --border: rgba(184, 137, 79, .3); --border-soft: rgba(30, 30, 50, .1);
+      --shadow: 0 10px 26px rgba(90, 70, 40, .14);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1526; --bg-card: #161f36; --bg-elevated: #1e2843;
+    --gold: #e0c28f; --gold-strong: #f0d7a8; --gold-soft: rgba(224, 194, 143, .14);
+    --text-hi: #f2ede0; --text-body: #cdd1e0; --text-muted: #7c869c;
+    --border: rgba(224, 194, 143, .22); --border-soft: rgba(255, 255, 255, .08);
+    --shadow: 0 14px 34px rgba(0, 0, 0, .38);
+  }
+  :root[data-theme="light"] {
+    --bg: #f6f1e4; --bg-card: #fffdf8; --bg-elevated: #f1e8d6;
+    --gold: #b8894f; --gold-strong: #96703d; --gold-soft: rgba(184, 137, 79, .1);
+    --text-hi: #26293a; --text-body: #3d4257; --text-muted: #767c94;
+    --border: rgba(184, 137, 79, .3); --border-soft: rgba(30, 30, 50, .1);
+    --shadow: 0 10px 26px rgba(90, 70, 40, .14);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text-body);
+    font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", "Heiti TC", sans-serif;
+    line-height: 1.7; -webkit-font-smoothing: antialiased;
+  }
+  h1, .serif { font-family: "Noto Serif TC", "Songti TC", "PMingLiU", "Microsoft JhengHei", serif; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 56px 20px 70px; }
+
+  .hero { text-align: center; margin-bottom: 20px; }
+  .eyebrow { font-size: .8rem; letter-spacing: .32em; color: var(--gold); margin-bottom: 14px; }
+  .hero h1 { font-size: clamp(1.8rem, 5vw, 2.7rem); color: var(--text-hi); margin: 0 0 14px; font-weight: 700; }
+  .hero p.subtitle { max-width: 42ch; margin: 0 auto; color: var(--text-muted); font-size: 1rem; }
+
+  .demo-note {
+    max-width: 640px; margin: 26px auto 44px; text-align: center; font-size: .82rem;
+    color: var(--text-muted); background: var(--gold-soft); border: 1px solid var(--border);
+    border-radius: 999px; padding: 8px 20px;
+  }
+
+  .nav-row {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    border: 1px solid var(--border-soft); border-radius: 20px; overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .part {
+    background: var(--bg-card); padding: 44px 20px; text-align: center; cursor: pointer;
+    border-right: 1px solid var(--border-soft); transition: background .2s ease;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .part:last-child { border-right: none; }
+  .part:hover, .part.active { background: var(--bg-elevated); }
+  .part .icon { font-size: 2.3rem; line-height: 1; }
+  .part .label { font-family: "Noto Serif TC", serif; font-size: 1.25rem; font-weight: 700; color: var(--text-hi); }
+  .part .en { font-size: .72rem; letter-spacing: .2em; color: var(--gold); text-transform: uppercase; }
+  .part.active .label { color: var(--gold-strong); }
+
+  .submenu {
+    max-height: 0; overflow: hidden; transition: max-height .32s ease;
+    background: var(--bg-elevated); border: 1px solid var(--border-soft); border-top: none;
+    border-radius: 0 0 20px 20px; margin-top: -1px;
+  }
+  .submenu.open { max-height: 320px; }
+  .submenu-inner { padding: 26px 30px 30px; }
+  .submenu-heading { font-size: .78rem; letter-spacing: .1em; color: var(--text-muted); margin-bottom: 14px; }
+  .item-grid { display: flex; flex-direction: column; gap: 10px; }
+  .item-link {
+    display: flex; align-items: center; gap: 10px; text-decoration: none;
+    background: var(--bg-card); border: 1px solid var(--border-soft); border-radius: 12px;
+    padding: 13px 16px; color: var(--text-body); font-size: .94rem;
+    transition: border-color .15s ease, transform .15s ease;
+  }
+  .item-link:hover { border-color: var(--gold); transform: translateX(3px); color: var(--text-hi); }
+  .item-link .arrow { margin-left: auto; color: var(--gold); flex-shrink: 0; }
+
+  .hint { text-align: center; font-size: .82rem; color: var(--text-muted); margin-top: 20px; }
+
+  @media (max-width: 700px) {
+    .nav-row { grid-template-columns: 1fr; }
+    .part { border-right: none; border-bottom: 1px solid var(--border-soft); padding: 30px 20px; }
+    .submenu { border-radius: 0; }
+    .submenu.open { max-height: 400px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">D E A R &nbsp; M A M A</div>
+    <h1>媽媽，你睡了嗎？</h1>
+    <p class="subtitle">陪伴你一起認識你的心裡和身體</p>
+  </header>
+
+  <div class="demo-note">🌙 這是簡化版導覽預覽：滑鼠移到任一個 part（或手機點一下），下面會展開子項目 — 這些連結是真的，可以直接點進去看</div>
+
+  <div id="navWrap"></div>
+
+  <div class="hint">滑鼠移開（或再點一次／點別的 part）子項目就會收起來</div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var PARTS = [
+    {
+      id: "hello", en: "PART 01", label: "Hello 女孩", icon: "🌸",
+      items: [
+        { text: "生與不生的大哉問", url: "https://dearmamatw.github.io/To-have-child-or-not-to-have-child/" }
+      ]
+    },
+    {
+      id: "pregnancy", en: "PART 02", label: "懷孕生產", icon: "🤰",
+      items: [
+        { text: "產前就要先準備好的產後避難計劃", url: "https://dearmamatw.github.io/Postpartum-plan/" },
+        { text: "孕期親密關係田野大調查", url: "https://dearmamatw.github.io/Perinatal-intimacy-survey/" }
+      ]
+    },
+    {
+      id: "postpartum", en: "PART 03", label: "產後育兒", icon: "👶",
+      items: [
+        { text: "媽媽們準備給爸爸的父親節彩蛋", url: "https://dearmamatw.github.io/Happy_father_day/" }
+      ]
+    }
+  ];
+
+  var navWrap = document.getElementById("navWrap");
+
+  var row = document.createElement("div");
+  row.className = "nav-row";
+  var panel = document.createElement("div");
+  panel.className = "submenu";
+  panel.id = "submenu";
+
+  PARTS.forEach(function (part) {
+    var tile = document.createElement("div");
+    tile.className = "part";
+    tile.id = "part-" + part.id;
+    tile.innerHTML =
+      '<div class="en">' + part.en + '</div>' +
+      '<div class="icon">' + part.icon + '</div>' +
+      '<div class="label">' + part.label + '</div>';
+    row.appendChild(tile);
+  });
+
+  navWrap.appendChild(row);
+  navWrap.appendChild(panel);
+
+  var activeId = null;
+  var closeTimer = null;
+
+  function renderPanel(part) {
+    var html = '<div class="submenu-inner"><div class="submenu-heading">' + part.label + ' 子項目</div><div class="item-grid">';
+    part.items.forEach(function (item) {
+      html += '<a class="item-link" href="' + item.url + '" target="_blank" rel="noopener noreferrer">' +
+        '<span>' + item.text + '</span><span class="arrow">→</span></a>';
+    });
+    html += '</div></div>';
+    panel.innerHTML = html;
+  }
+
+  function open(id) {
+    var part = PARTS.filter(function (p) { return p.id === id; })[0];
+    if (!part) return;
+    activeId = id;
+    document.querySelectorAll(".part").forEach(function (el) {
+      el.classList.toggle("active", el.id === "part-" + id);
+    });
+    renderPanel(part);
+    panel.classList.add("open");
+  }
+
+  function close() {
+    activeId = null;
+    document.querySelectorAll(".part").forEach(function (el) { el.classList.remove("active"); });
+    panel.classList.remove("open");
+  }
+
+  function scheduleClose() {
+    clearTimeout(closeTimer);
+    closeTimer = setTimeout(close, 220);
+  }
+  function cancelClose() {
+    clearTimeout(closeTimer);
+  }
+
+  PARTS.forEach(function (part) {
+    var tile = document.getElementById("part-" + part.id);
+    tile.addEventListener("mouseenter", function () { cancelClose(); open(part.id); });
+    tile.addEventListener("mouseleave", scheduleClose);
+    tile.addEventListener("click", function () {
+      if (activeId === part.id) { close(); } else { cancelClose(); open(part.id); }
+    });
+  });
+
+  panel.addEventListener("mouseenter", cancelClose);
+  panel.addEventListener("mouseleave", scheduleClose);
+})();
+</script>
+</body>
+</html>
