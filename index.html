@@ -50,12 +50,6 @@
   .hero h1 { font-size: clamp(1.8rem, 5vw, 2.7rem); color: var(--text-hi); margin: 0 0 14px; font-weight: 700; }
   .hero p.subtitle { max-width: 42ch; margin: 0 auto; color: var(--text-muted); font-size: 1rem; }
 
-  .demo-note {
-    max-width: 640px; margin: 26px auto 44px; text-align: center; font-size: .82rem;
-    color: var(--text-muted); background: var(--gold-soft); border: 1px solid var(--border);
-    border-radius: 999px; padding: 8px 20px;
-  }
-
   .nav-row {
     display: grid; grid-template-columns: repeat(3, 1fr);
     border: 1px solid var(--border-soft); border-radius: 20px; overflow: hidden;
@@ -81,7 +75,6 @@
   }
   .submenu.open { max-height: 320px; }
   .submenu-inner { padding: 26px 30px 30px; }
-  .submenu-heading { font-size: .78rem; letter-spacing: .1em; color: var(--text-muted); margin-bottom: 14px; }
   .item-grid { display: flex; flex-direction: column; gap: 10px; }
   .item-link {
     display: flex; align-items: center; gap: 10px; text-decoration: none;
@@ -93,6 +86,15 @@
   .item-link .arrow { margin-left: auto; color: var(--gold); flex-shrink: 0; }
 
   .hint { text-align: center; font-size: .82rem; color: var(--text-muted); margin-top: 20px; }
+
+  .footer-cta { text-align: center; margin-top: 56px; padding-top: 36px; border-top: 1px solid var(--border-soft); }
+  .footer-cta p { color: var(--text-muted); font-size: .92rem; margin: 0 0 14px; }
+  .fb-link {
+    display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+    background: var(--gold); color: var(--bg); font-weight: 700; font-size: .9rem;
+    padding: 12px 26px; border-radius: 999px; transition: background .15s ease, transform .15s ease;
+  }
+  .fb-link:hover { background: var(--gold-strong); transform: translateY(-1px); }
 
   @media (max-width: 700px) {
     .nav-row { grid-template-columns: 1fr; }
@@ -111,11 +113,14 @@
     <p class="subtitle">陪伴你一起認識你的心裡和身體</p>
   </header>
 
-  <div class="demo-note">🌙 這是簡化版導覽預覽：滑鼠移到任一個 part（或手機點一下），下面會展開子項目 — 這些連結是真的，可以直接點進去看</div>
-
   <div id="navWrap"></div>
 
   <div class="hint">滑鼠移開（或再點一次／點別的 part）子項目就會收起來</div>
+
+  <div class="footer-cta">
+    <p>📎 想聽更多，來粉專找我們聊聊</p>
+    <a class="fb-link" href="https://www.facebook.com/dearmama.tw" target="_blank" rel="noopener noreferrer">追蹤《媽媽，妳睡了嗎？》粉絲專頁</a>
+  </div>
 </div>
 
 <script>
@@ -170,7 +175,7 @@
   var closeTimer = null;
 
   function renderPanel(part) {
-    var html = '<div class="submenu-inner"><div class="submenu-heading">' + part.label + ' 子項目</div><div class="item-grid">';
+    var html = '<div class="submenu-inner"><div class="item-grid">';
     part.items.forEach(function (item) {
       html += '<a class="item-link" href="' + item.url + '" target="_blank" rel="noopener noreferrer">' +
         '<span>' + item.text + '</span><span class="arrow">→</span></a>';
